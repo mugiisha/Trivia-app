@@ -44,6 +44,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['categories'])
+
+    def test_unallowed_method_on_categories(self):
+        res = self.client().patch('/categories')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['message'], 'method not allowed')
     
     def test_get_questions(self):
         res = self.client().get('/questions')
@@ -55,15 +62,30 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['totalQuestions'])
         self.assertTrue(data['categories'])
 
-    def test_delete_question(self):
-        res = self.client().delete('/questions/10')
+    def test_unallowed_method_on_questions(self):
+        res = self.client().patch('/questions')
         data = json.loads(res.data)
-        question = Question.query.filter(Question.id == 10).one_or_none()
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['message'], 'method not allowed')
+
+    def test_delete_question(self):
+        res = self.client().delete('/questions/39')
+        data = json.loads(res.data)
+        question = Question.query.filter(Question.id == 39).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'],True)
-        self.assertEqual(data['deleted'],10)
+        self.assertEqual(data['deleted'],39)
         self.assertEqual(question, None)
+
+    def test_delete_unavailable_question(self):
+        res = self.client().delete('/questions/10000')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['message'], 'resource not found')
+
 
     def test_create_question(self):
         res = self.client().post('/questions', json=self.new_question)
@@ -73,7 +95,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'],True)
         self.assertTrue(data['created'])
 
-    def test_serach_question(self):
+    def test_search_question(self):
         res = self.client().post('/questions/search', json=self.search_term)
         data = json.loads(res.data)
 
@@ -91,12 +113,25 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['current_category'],2)
         self.assertEqual(data['total_questions'],len(Question.query.filter(Question.category == 2).all()))
     
+    def test_unallowed_method_on_get_questions_by_categories(self):
+        res = self.client().patch('/categories/2/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['message'], 'method not allowed')
+    
     def test_get_quiz(self):
         res = self.client().post('/quizzes',  json={"previous_questions": [], "quiz_category": {'id': 1, 'type': 'Science'}})
         data=json.loads(res.data)
         self.assertEqual(res.status_code,200)
         self.assertEqual(data['success'],True)
         self.assertTrue(data['question'])
+
+    def test_unprocessable__get_quiz(self):
+        res = self.client().post('/quizzes',  json={})
+        data=json.loads(res.data)
+        self.assertEqual(res.status_code,422)
+        self.assertEqual(data['message'],'unprocessable')
 
 
 # Make the tests conveniently executable

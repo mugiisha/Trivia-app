@@ -241,7 +241,7 @@ def create_app(test_config=None):
                 })
         except:
             abort(422)
-            
+
     """
     @TODO:
     Create error handlers for all expected errors
@@ -257,17 +257,19 @@ def create_app(test_config=None):
     @app.errorhandler(422)
     def unprocessable(error):
         return (
-            jsonify({"success": False, "error": 422, "message": "unprocessable"}),
-            422,
-        )
+            jsonify({"success": False, "error": 422, "message": "unprocessable"})),422
 
     @app.errorhandler(400)
     def bad_request(error):
-        return jsonify({"success": False, "error": 400, "message": "bad request"}, 400)
+        return jsonify({"success": False, "error": 400, "message": "bad request"}), 400
+
+    @app.errorhandler(405)
+    def bad_request(error):
+        return jsonify({"success": False, "error": 405, "message": "method not allowed"}),405
 
     @app.errorhandler(500)
     def server_error(error):
-        return jsonify({"success": False, "error": 500, "message": "server error"}, 500)
+        return jsonify({"success": False, "error": 500, "message": "server error"}), 500
 
     return app
 

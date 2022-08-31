@@ -47,6 +47,10 @@ export FLASK_APP=flaskr
 export FLASK_ENV=development
 flask run
 ```
+
+### Environment variables
+remember to check example.env file to see variables you need in your .env file because it is mandatory for the app to run properly
+
 setting the ```FLASK_ENV``` variable to ```development``` will detect file changes and restart the server automatically.
 setting the ```FLASK_APP``` directs flask to use the ```flaskr``` directory and the ``` __init__.py``` file to find the application.
 
